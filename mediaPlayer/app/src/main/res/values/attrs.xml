@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <declare-styleable name="FocusView">
+        <attr name="layoutOffsetX" format="dimension" />
+        <attr name="layoutOffsetY" format="dimension" />
+        <attr name="offsetWidth" format="dimension" />
+        <attr name="offsetHeight" format="dimension" />
+        <attr name="animDuration" format="integer" />
+    </declare-styleable>
+
+
+    <attr name="item_footer" format="reference|color" />
+    <attr name="background_default" format="reference|color" />
+    <attr name="background_default_darker" format="reference|color" />
+    <attr name="background_actionbar" format="reference|color" />
+    <attr name="background_menu_divider" format="reference|color" />
+    <attr name="background_menu" format="reference|color" />
+    <attr name="background_menu_selected" format="reference|color" />
+    <attr name="background_header" format="reference|color" />
+    <attr name="background_player" format="reference|color" />
+    <attr name="background_audio_tips" format="reference|color" />
+    <attr name="font_default" format="reference|color" />
+    <attr name="font_light" format="reference|color" />
+    <attr name="font_actionbar" format="reference|color" />
+    <attr name="font_actionbar_selected" format="reference|color" />
+    <attr name="navigationview_item_color" format="reference|color" />
+    <attr name="video_player_overlay" format="reference|color" />
+    <attr name="status_bar_overlay" format="reference|color" />
+    <attr name="advanced_options_divider" format="reference|color" />
+    <attr name="advanced_options_background" format="reference|color" />
+    <attr name="audio_browser_separator" format="reference|color" />
+    <attr name="playlist_item_drag_shadow" format="reference|color" />
+    <attr name="audio_player_header_time" format="reference|color" />
+    <attr name="list_menu" format="reference|color" />
+    <attr name="list_subtitle" format="reference|color" />
+    <attr name="list_title_last" format="reference|color" />
+    <attr name="list_title" format="reference|color" />
+    <attr name="color_menu_button" format="reference|color" />
+
+    <!--Main Icons-->
+    <attr name="ic_down_style" format="reference" />
+    <attr name="ic_up_style" format="reference" />
+    <attr name="ic_playlist" format="reference" />
+    <attr name="ic_playlist_on" format="reference" />
+    <attr name="ic_repeat" format="reference" />
+    <attr name="ic_repeat_all" format="reference" />
+    <attr name="ic_repeat_one" format="reference" />
+    <attr name="ic_shuffle" format="reference" />
+    <attr name="ic_shuffle_on" format="reference" />
+    <attr name="ic_audio_player_more" format="reference" />
+    <attr name="ic_play" format="reference" />
+    <attr name="ic_pause" format="reference" />
+    <attr name="ic_previous" format="reference" />
+    <attr name="ic_next" format="reference" />
+    <attr name="ic_close" format="reference" />
+    <attr name="ic_move_media" format="reference" />
+    <attr name="ic_save" format="reference" />
+    <attr name="ic_trash_small_normal" format="reference" />
+    <attr name="gridview_progressbar" format="reference" />
+    <attr name="toolbar_popup_style" format="reference" />
+    <attr name="progress_mini_player" format="reference" />
+
+    <!--Advance Options Icons-->
+    <attr name="ic_speed_normal_style" format="reference" />
+    <attr name="ic_sleep_normal_style" format="reference" />
+    <attr name="ic_jumpto_normal_style" format="reference" />
+    <attr name="ic_chapter_normal_style" format="reference" />
+    <attr name="ic_equalizer_normal_style" format="reference" />
+    <attr name="ic_audiodelay" format="reference" />
+    <attr name="ic_subtitledelay" format="reference" />
+    <attr name="ic_playasaudio_off" format="reference" />
+    <attr name="ic_playasaudio_on" format="reference" />
+    <attr name="ic_popup_expand" format="reference" />
+    <attr name="ic_popup_dim" format="reference" />
+
+    <attr name="shadow_top_9patch" format="reference" />
+    <attr name="shadow_bottom_9patch" format="reference" />
+
+    <attr name="advanced_options_style" format="reference" />
+    <attr name="rounded_bg" format="reference" />
+
+    <declare-styleable name="SlidingPaneLayout">
+        <attr name="overhangSize" format="dimension" />
+    </declare-styleable>
+
+    <attr name="marginTopContent" format="dimension" />
+
+    <!-- 2018.9.20 跑马灯-->
+    <declare-styleable name="MyMarqueeView">
+        <attr name="marqueeview_repet_type" format="enum">
+            <enum name="repet_oncetime" value="0" /><!-- 播放一次 -->
+            <enum name="repet_interval" value="1" />  <!--连续播放 循环结束再继续下次循环-->
+            <enum name="repet_continuous" value="2" />  <!--连续播放 到末尾直接继续下次循环-->
+        </attr><!--循环模式-->
+
+        <attr name="marqueeview_text_distance" format="integer" /><!--每个item之间的距离-->
+        <attr name="marqueeview_text_startlocationdistance" format="float" /><!--开始的起始位置 按距离控件左边的百分比 0~1之间 -->
+
+        <attr name="marqueeview_text_speed" format="float" /><!--播放速度 也就是文字滚动速度-->
+        <attr name="marqueeview_text_color" format="color|reference" /><!-- 文字颜色 -->
+        <attr name="marqueeview_text_size" format="float" /><!-- 文字大小 -->
+
+        <attr name="marqueeview_isclickalbe_stop" format="boolean" /><!--是否点击暂停-->
+        <attr name="marqueeview_is_resetLocation" format="boolean" /><!--重新改变内容的时候 ， 是否初始化 位置，默认为true，改变-->
+    </declare-styleable>
+
+    <declare-styleable name="TSeekBar">
+        <attr name="textsize" format="dimension" />
+        <attr name="textcolor" format="color" />
+    </declare-styleable>
+</resources>

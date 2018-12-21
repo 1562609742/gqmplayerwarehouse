@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/player_control_bottom_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:visibility="gone"
+    android:clipChildren="false">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:clipChildren="false"
+        android:background="@drawable/rounded_corners">
+
+        <com.gq.mediaplayer.TSeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:maxHeight="3dp"
+            android:minHeight="3dp"
+            android:progressDrawable="@drawable/bg_seekbar"
+            android:splitTrack="false"
+            android:thumb="@drawable/seekbar_thumb_sel"
+            app:textcolor="#fff"
+            app:textsize="14dp" />
+
+        <RelativeLayout
+            android:id="@+id/llSeekbar"
+            android:layout_width="match_parent"
+            android:layout_height="80px"
+            android:layout_below="@+id/seekBar">
+
+            <ImageView
+                android:id="@+id/control_btn"
+                android:layout_width="96px"
+                android:layout_height="80px"
+                android:layout_centerVertical="true"
+                android:focusable="true"
+                android:scaleType="center"
+                android:src="@drawable/player_control_playing_sel" />
+
+            <ImageView
+                android:id="@+id/line_one"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/control_btn"
+                android:background="@drawable/player_line" />
+
+            <TextView
+                android:id="@+id/tv_time_current"
+                style="@style/MediaController_Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp"
+                android:layout_toRightOf="@+id/line_one"
+                android:text="00:00:00" />
+
+            <TextView
+                android:id="@+id/tv_time_total"
+                style="@style/MediaController_Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:layout_toRightOf="@+id/tv_time_current"
+                android:text="/00:00:00" />
+
+            <ImageView
+                android:id="@+id/line_four"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/tv_time_total"
+                android:background="@drawable/player_line" />
+
+            <ImageView
+                android:id="@+id/line_two"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/audio_track_sel"
+                android:background="@drawable/player_line" />
+
+            <ImageView
+                android:id="@+id/audio_track_sel"
+                android:layout_width="96px"
+                android:layout_height="80px"
+                android:layout_toLeftOf="@+id/line_three"
+                android:focusable="true"
+                android:scaleType="center"
+                android:src="@drawable/audio_control_bg" />
+
+            <ImageView
+                android:id="@+id/line_three"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/subtitle_track_sel"
+                android:background="@drawable/player_line" />
+
+            <ImageView
+                android:id="@+id/subtitle_track_sel"
+                android:layout_width="96px"
+                android:layout_height="80px"
+                android:layout_alignParentRight="true"
+                android:focusable="true"
+                android:scaleType="center"
+                android:src="@drawable/subtitle_control_bg" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+</RelativeLayout>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:clipChildren="false"
+        android:id="@+id/playerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/mPlayerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/subtitle_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="72dp"
+            android:gravity="center"
+            android:text="测试字幕"
+            android:textColor="#ffffff"
+            android:textSize="30sp" />
+
+        <ImageButton
+            android:id="@+id/btn_play_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:src="@mipmap/mediacontroller_pause"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:clipChildren="false"
+            android:id="@+id/update_progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+
+            <TextView
+                android:id="@+id/player_name"
+                android:layout_above="@+id/load_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="15dp"
+                android:text="正在加载"
+                android:textColor="#f5f5f5"
+                android:textSize="20sp" />
+
+            <RelativeLayout
+                android:id="@+id/load_layout"
+                android:clipChildren="false"
+                android:layout_width="400dp"
+                android:layout_height="30dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true">
+
+                <ImageView
+                    android:layout_centerVertical="true"
+                    android:layout_width="400dp"
+                    android:background="@drawable/player_pr"
+                    android:layout_height="3dp" />
+                <ImageView
+                    android:id="@+id/load_img"
+                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@mipmap/jindu" />
+            </RelativeLayout>
+
+            <!--<com.wuwang.mplayer.TSeekBar-->
+            <!--android:id="@+id/seekBars"-->
+            <!--android:layout_width="400dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:focusable="false"-->
+            <!--android:maxHeight="3dp"-->
+            <!--android:minHeight="3dp"-->
+            <!--android:progressDrawable="@drawable/progressbar"-->
+            <!--android:splitTrack="false"-->
+            <!--android:thumb="@mipmap/test_3" />-->
+
+            <TextView
+                android:id="@+id/tv_speed"
+                android:layout_below="@+id/load_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                android:text="5kb/s"
+                android:textColor="#f5f5f5" />
+        </RelativeLayout>
+
+        <include layout="@layout/player_control_title" />
+
+        <include layout="@layout/player_control_bottom" />
+
+        <include layout="@layout/player_ad_img" />
+    </FrameLayout>
+
+</LinearLayout>
