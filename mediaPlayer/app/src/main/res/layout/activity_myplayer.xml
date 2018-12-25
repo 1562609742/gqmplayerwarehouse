@@ -6,10 +6,10 @@
     android:orientation="vertical">
 
     <FrameLayout
-        android:clipChildren="false"
         android:id="@+id/playerContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipChildren="false">
 
         <SurfaceView
             android:id="@+id/mPlayerView"
@@ -37,19 +37,19 @@
             android:visibility="gone" />
 
         <RelativeLayout
-            android:clipChildren="false"
             android:id="@+id/update_progress"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipChildren="false"
             android:orientation="vertical"
             android:visibility="gone">
 
 
             <TextView
                 android:id="@+id/player_name"
-                android:layout_above="@+id/load_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_above="@+id/load_layout"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="15dp"
                 android:text="正在加载"
@@ -58,22 +58,23 @@
 
             <RelativeLayout
                 android:id="@+id/load_layout"
-                android:clipChildren="false"
                 android:layout_width="400dp"
                 android:layout_height="30dp"
                 android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true">
+                android:layout_centerVertical="true"
+                android:clipChildren="false">
 
                 <ImageView
-                    android:layout_centerVertical="true"
                     android:layout_width="400dp"
-                    android:background="@drawable/player_pr"
-                    android:layout_height="3dp" />
+                    android:layout_height="3dp"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/player_pr" />
+
                 <ImageView
                     android:id="@+id/load_img"
-                    android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:background="@mipmap/jindu" />
             </RelativeLayout>
 
@@ -91,9 +92,9 @@
 
             <TextView
                 android:id="@+id/tv_speed"
-                android:layout_below="@+id/load_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/load_layout"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="15dp"
                 android:text="5kb/s"
@@ -101,6 +102,14 @@
         </RelativeLayout>
 
         <include layout="@layout/player_control_title" />
+
+        <android.support.v7.widget.ViewStubCompat
+            android:id="@+id/player_info_stub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/default_margin"
+            android:layout="@layout/player_overlay_info" />
 
         <include layout="@layout/player_control_bottom" />
 

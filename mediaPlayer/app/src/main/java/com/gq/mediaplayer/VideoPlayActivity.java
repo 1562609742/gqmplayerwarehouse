@@ -1,13 +1,17 @@
 package com.gq.mediaplayer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.TimedText;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.ViewStubCompat;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -20,6 +24,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -48,7 +53,7 @@ public class VideoPlayActivity extends Activity implements
     private RelativeLayout second_ad_show_layout;
     private AlertDialog dialog = null;
 
-    private static final int HIDE = 1, SHOW = 2, FINISH = 3, ENABLE_SEEK = 4, ENABLE_PLAY = 5, ADSHOWTIME = 6, ADHIDE = 7;
+    private static final int HIDE = 1, SHOW = 2, FINISH = 3, ENABLE_SEEK = 4, ENABLE_PLAY = 5, ADSHOWTIME = 6, ADHIDE = 7, FADE_OUT_INFO = 8;
     private int timeout = 8000;
     private int videoDuration;
     private List<TrackBean> audioList = null;
@@ -60,7 +65,7 @@ public class VideoPlayActivity extends Activity implements
     private TimerTask timerTask;
     private String videoUri = "/sdcard/test.mkv";
     private String subtitleSrtOrAss = "/sdcard/test.srt";
-
+    private AudioManager mAudioManager;
     private Handler mHandler = new MyHandler(this);
 
     @Override
@@ -69,6 +74,7 @@ public class VideoPlayActivity extends Activity implements
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_myplayer);
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         initView();
         initData();
         initPlayer();
@@ -437,6 +443,22 @@ public class VideoPlayActivity extends Activity implements
                             exit();
                         }
                         return true;
+                    case KeyEvent.KEYCODE_VOLUME_DOWN:
+                        if (mAudioManager != null) {
+                            mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, 0);
+                            int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                            int currentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                            showInfoWithVerticalBar(getString(R.string.volume) + "\n" + (int) (currentVolume / (maxVolume*1.0d) * 100) + '%', 1000, currentVolume, maxVolume);
+                        }
+                        return true;
+                    case KeyEvent.KEYCODE_VOLUME_UP:
+                        if (mAudioManager != null) {
+                            mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, 0);
+                            int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                            int currentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                            showInfoWithVerticalBar(getString(R.string.volume) + "\n" + (int) (currentVolume / (maxVolume*1.0d) * 100) + '%', 1000, currentVolume, maxVolume);
+                        }
+                        return true;
                     case KeyEvent.KEYCODE_HOME:
                         return true;
                 }
@@ -618,6 +640,9 @@ public class VideoPlayActivity extends Activity implements
                     int time = ob / 1000;
                     text_stop.setText(time + "");
                     break;
+                case FADE_OUT_INFO:
+                    fadeOutInfo();
+                    break;
             }
         }
     }
@@ -644,10 +669,67 @@ public class VideoPlayActivity extends Activity implements
 
     private Timer playIndexTimer;
 
-//    @Override
+    //    @Override
 //    public void onAttachedToWindow() {
 //        this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
 //        super.onAttachedToWindow();
 //    }
 
+    private TextView mInfo;
+    private View mOverlayInfo;
+    private View mVerticalBar;
+    private View mVerticalBarProgress;
+    private View mVerticalBarBoostProgress;
+
+    @SuppressLint("RestrictedApi")
+    private void initInfoOverlay() {
+        ViewStubCompat vsc = (ViewStubCompat) findViewById(R.id.player_info_stub);
+        if (vsc != null) {
+            vsc.inflate();
+            mInfo = (TextView) findViewById(R.id.player_overlay_textinfo);
+            mOverlayInfo = findViewById(R.id.player_overlay_info);
+            mVerticalBar = findViewById(R.id.verticalbar);
+            mVerticalBarProgress = findViewById(R.id.verticalbar_progress);
+            mVerticalBarBoostProgress = findViewById(R.id.verticalbar_boost_progress);
+        }
+    }
+
+    private void showInfo(String text, int duration) {
+        initInfoOverlay();
+        mOverlayInfo.setVisibility(View.VISIBLE);
+        mInfo.setText(text);
+        mHandler.removeMessages(FADE_OUT_INFO);
+        mHandler.sendEmptyMessageDelayed(FADE_OUT_INFO, duration);
+    }
+
+    private void fadeOutInfo() {
+        if (mOverlayInfo != null && mOverlayInfo.getVisibility() == View.VISIBLE) {
+            mOverlayInfo.startAnimation(AnimationUtils.loadAnimation(
+                    this, android.R.anim.fade_out));
+            mOverlayInfo.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void showInfoWithVerticalBar(String text, int duration, int barNewValue, int max) {
+        showInfo(text, duration);
+        if (mVerticalBarProgress == null)
+            return;
+        LinearLayout.LayoutParams layoutParams;
+        if (barNewValue <= 100) {
+            layoutParams = (LinearLayout.LayoutParams) mVerticalBarProgress.getLayoutParams();
+            layoutParams.weight = barNewValue * 100 / max;
+            mVerticalBarProgress.setLayoutParams(layoutParams);
+            layoutParams = (LinearLayout.LayoutParams) mVerticalBarBoostProgress.getLayoutParams();
+            layoutParams.weight = 0;
+            mVerticalBarBoostProgress.setLayoutParams(layoutParams);
+        } else {
+            layoutParams = (LinearLayout.LayoutParams) mVerticalBarProgress.getLayoutParams();
+            layoutParams.weight = 100 * 100 / max;
+            mVerticalBarProgress.setLayoutParams(layoutParams);
+            layoutParams = (LinearLayout.LayoutParams) mVerticalBarBoostProgress.getLayoutParams();
+            layoutParams.weight = (barNewValue - 100) * 100 / max;
+            mVerticalBarBoostProgress.setLayoutParams(layoutParams);
+        }
+        mVerticalBar.setVisibility(View.VISIBLE);
+    }
 }

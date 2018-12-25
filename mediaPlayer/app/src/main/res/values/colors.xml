@@ -12,4 +12,7 @@
     <color name="img_full_opaque">#00000000</color>
     <color name="white">#FFFFFF</color>
     <color name="black_opaque">#69000000</color>
+
+    <color name="red500transparent">#b4ff0000</color>
+    <color name="orange500transparent">#b4ff8800</color>
 </resources>

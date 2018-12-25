@@ -376,7 +376,7 @@ class MyPlayer implements MediaPlayer.OnBufferingUpdateListener,
                 }
             } else {
                 float scaleVideo = videoWidth / (float) videoHeight;
-                float scaleSurface = width / height;
+                float scaleSurface = width / (float) height;
                 if (scaleVideo > scaleSurface) {
                     params.width = width;
                     params.height = (int) (width / scaleVideo);
