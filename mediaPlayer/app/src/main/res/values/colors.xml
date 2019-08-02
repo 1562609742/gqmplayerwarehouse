@@ -11,6 +11,13 @@
     <color name="blacktransparent">#40000000</color>
     <color name="img_full_opaque">#00000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="red">#FF0000 </color>
+    <color name="orange">#FF7F00</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="green">#00FF00</color>
+    <color name="cyan">#00FFFF</color>
+    <color name="blue">#0000FF</color>
+    <color name="purple">#8B00FF</color>
     <color name="black_opaque">#69000000</color>
 
     <color name="red500transparent">#b4ff0000</color>

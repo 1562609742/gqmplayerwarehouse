@@ -1,9 +1,12 @@
 package com.gq.mediaplayer;
 
+import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.media.TimedText;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -11,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Created by gq.
@@ -24,6 +29,11 @@ class MyPlayer implements MediaPlayer.OnBufferingUpdateListener,
     private MediaPlayer player;
     private String source;
     private SurfaceHolder surfaceHolder;
+    /**
+     * 2019.3.4
+     */
+//    private SurfaceView subtitleSurface;
+    private SurfaceHolder subtitleSurfaceHolder;
     private SurfaceView mSurfaceView;
     private MyPlayListener mPlayListener;
     private IMPlayerPrepared imPlayerPrepared;
@@ -158,6 +168,34 @@ class MyPlayer implements MediaPlayer.OnBufferingUpdateListener,
         this.surfaceHolder.addCallback(this);
     }
 
+    public void setSubtitleSurface(SurfaceView subtitleSurface) {
+
+        if(subtitleSurfaceHolder!=null){
+            this.subtitleSurfaceHolder = null;
+        }
+        subtitleSurface.setZOrderMediaOverlay(true);
+        subtitleSurfaceHolder = subtitleSurface.getHolder();
+        subtitleSurfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
+
+        subtitleSurfaceHolder.addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder surfaceHolder) {
+                ReflectionMediaplayer.setSubtitleSurface( player, surfaceHolder);
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
+            }
+        });
+
+    }
+
     public void onDestroy() {
         if (player != null) {
             player.reset();
@@ -224,6 +262,7 @@ class MyPlayer implements MediaPlayer.OnBufferingUpdateListener,
                 }
             }
         });
+
         imPlayerPrepared.onMPlayerPrepare();
         if (surfaceHolder == null) return;
         player.setDisplay(surfaceHolder);

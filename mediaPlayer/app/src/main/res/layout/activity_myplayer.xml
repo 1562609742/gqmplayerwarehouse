@@ -15,7 +15,10 @@
             android:id="@+id/mPlayerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
+        <SurfaceView
+            android:id="@+id/mSubtitleSurface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
         <TextView
             android:id="@+id/subtitle_text"
             android:layout_width="wrap_content"

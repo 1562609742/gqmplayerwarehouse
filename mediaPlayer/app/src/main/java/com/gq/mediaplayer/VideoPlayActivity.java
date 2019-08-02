@@ -3,13 +3,17 @@ package com.gq.mediaplayer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.TimedText;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.widget.ViewStubCompat;
 import android.text.TextUtils;
@@ -40,16 +44,22 @@ import java.util.TimerTask;
 
 public class VideoPlayActivity extends Activity implements
         SeekBar.OnSeekBarChangeListener, MyPlayer.OnTimedMPTextListener,
-        View.OnClickListener, MyPlayer.OnVideoChangedListener, MyPlayer.IMInfoListener {
+        View.OnClickListener, MyPlayer.OnVideoChangedListener,
+        MyPlayer.IMInfoListener {
 
     private SurfaceView mPlayerView;
+    /**
+     * 2019.3.4
+     */
+    private SurfaceView subtitleSurface;
+
     private MyPlayer player;
     private TSeekBar seekBar;
     private RelativeLayout updateProgressBar;
     private ImageButton btn_play_pause;
     private TextView movieName, tv_time_total, tv_time_current, subtitle_text, text_stop;
     private RelativeLayout playerControlTitleLayout, playerControlBottomLayout;
-    private ImageView paly_btn, audio_track, subtitle_track, second_ad_show, load_img;
+    private ImageView paly_btn, audio_track, subtitle_track, second_ad_show, load_img, subtitle_color;
     private RelativeLayout second_ad_show_layout;
     private AlertDialog dialog = null;
 
@@ -58,15 +68,21 @@ public class VideoPlayActivity extends Activity implements
     private int videoDuration;
     private List<TrackBean> audioList = null;
     private List<TrackBean> subtitleList = null;
+    private List<TrackBean> subtitleColorList = null;
     private int[] ind = null;
 
     private String[] name = null;
     private Timer timer;
     private TimerTask timerTask;
-    private String videoUri = "/sdcard/test.mkv";
+//    private String videoUri = "http://192.168.31.155:80/movie/0523/杀手.mkv";
+        private String videoUri = "http://192.168.31.155:83/敢死队[2010]2160P/The.Expendables.2010.2160P.Remux.UltraHD.Bluray.HEVC.TrueHD.Atmos.7.1-RARBG.mkv";
+//    private String videoUri = "/storage/emulated/0/Movies/Eye1.mp4";
     private String subtitleSrtOrAss = "/sdcard/test.srt";
     private AudioManager mAudioManager;
     private Handler mHandler = new MyHandler(this);
+    private Intent encryServiceIntent;
+
+    private String[] color = {"白", "赤", "橙", "黄", "绿", "青", "蓝", "紫", "黑"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +91,33 @@ public class VideoPlayActivity extends Activity implements
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_myplayer);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        encryServiceIntent = new Intent();
+//        encryServiceIntent.setComponent(new ComponentName("com.jasha.vas", "com.jasha.vas.VAService"));
+//        startEncryService();
+//        bindEncryService();
         initView();
         initData();
         initPlayer();
         getIntentData();
+    }
+
+    private void bindEncryService() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName("com.jasha.vas",
+                "com.jasha.vas.VAService"));
+        bindService(encryServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void startEncryService() {
+        startService(encryServiceIntent);
+    }
+
+    private void stopEncryService() {
+        stopService(encryServiceIntent);
+    }
+
+    private void unBindEncryService() {
+        unbindService(mServiceConnection);
     }
 
     private void getIntentData() {
@@ -102,9 +141,12 @@ public class VideoPlayActivity extends Activity implements
         updateProgressBar = findViewById(R.id.update_progress);
         audio_track = findViewById(R.id.audio_track_sel);
         subtitle_track = findViewById(R.id.subtitle_track_sel);
+        subtitle_color = findViewById(R.id.subtitle_color_sel);
         playerControlTitleLayout = findViewById(R.id.player_control_title_layout);
         movieName = findViewById(R.id.movie_name);
         mPlayerView = findViewById(R.id.mPlayerView);
+        /**2019.3.4*/
+        subtitleSurface = findViewById(R.id.mSubtitleSurface);
         btn_play_pause = findViewById(R.id.btn_play_pause);
         tv_time_total = findViewById(R.id.tv_time_total);
         tv_time_current = findViewById(R.id.tv_time_current);
@@ -116,6 +158,7 @@ public class VideoPlayActivity extends Activity implements
         seekBar.setOnSeekBarChangeListener(this);
         audio_track.setOnClickListener(this);
         subtitle_track.setOnClickListener(this);
+        subtitle_color.setOnClickListener(this);
         paly_btn.setOnClickListener(this);
     }
 
@@ -203,6 +246,8 @@ public class VideoPlayActivity extends Activity implements
             if (mUrl.length() > 0) {
                 try {
                     player.setSource(mUrl, subtitleStr);
+                    /**2019.3.4*/
+                    player.setSubtitleSurface(subtitleSurface);
                     player.setDisplay(mPlayerView);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -279,6 +324,7 @@ public class VideoPlayActivity extends Activity implements
     private void encapsulatedOrbit(MediaPlayer.TrackInfo[] mtInfo) {
         audioList = new ArrayList<>();
         subtitleList = new ArrayList<>();
+        subtitleColorList = new ArrayList<>();
         if (mtInfo != null && mtInfo.length > 0) {
             /**添加默认选项*/
             TrackBean disabletb = new TrackBean();
@@ -297,14 +343,17 @@ public class VideoPlayActivity extends Activity implements
                     TrackBean tb = new TrackBean();
                     tb.setIndex(i);
                     tb.setSubtitleName(info.getLanguage());
+                    tb.setType(info.getTrackType());
                     subtitleList.add(tb);
                 } else if (info.getTrackType() == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT) {
                     TrackBean tb = new TrackBean();
                     tb.setIndex(i);
                     tb.setSubtitleName(info.getLanguage());
+                    tb.setType(info.getTrackType());
                     subtitleList.add(tb);
                 }
             }
+
             if (!(audioList.size() > 0)) {
                 audio_track.setFocusable(false);
                 audio_track.setImageResource(R.mipmap.vioce_hui);
@@ -324,6 +373,30 @@ public class VideoPlayActivity extends Activity implements
                 subtitle_track.setImageResource(R.drawable.subtitle_control_bg);
                 subtitleSelIndex = 1;
             }
+
+            if (!TextUtils.isEmpty(subtitleSrtOrAss)) {
+                for (int i = 0; i < color.length; i++) {
+                    TrackBean tb = new TrackBean();
+                    tb.setIndex(i);
+                    tb.setSubtitleColor(color[i]);
+                    subtitleColorList.add(tb);
+                }
+                setSubtitleColorFocus(true);
+                subtitleColorSelIndex = 0;
+            } else {
+                setSubtitleColorFocus(false);
+            }
+
+        }
+    }
+
+    public void setSubtitleColorFocus(boolean isfocus) {
+        if (isfocus) {
+            subtitle_color.setFocusable(true);
+            subtitle_color.setImageResource(R.drawable.subtitle_color_sel);
+        } else {
+            subtitle_color.setFocusable(false);
+            subtitle_color.setImageResource(R.mipmap.subtitle_hui);
         }
     }
 
@@ -448,7 +521,7 @@ public class VideoPlayActivity extends Activity implements
                             mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, 0);
                             int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                             int currentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                            showInfoWithVerticalBar(getString(R.string.volume) + "\n" + (int) (currentVolume / (maxVolume*1.0d) * 100) + '%', 1000, currentVolume, maxVolume);
+                            showInfoWithVerticalBar(getString(R.string.volume) + "\n" + (int) (currentVolume / (maxVolume * 1.0d) * 100) + '%', 1000, currentVolume, maxVolume);
                         }
                         return true;
                     case KeyEvent.KEYCODE_VOLUME_UP:
@@ -456,7 +529,7 @@ public class VideoPlayActivity extends Activity implements
                             mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, 0);
                             int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                             int currentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                            showInfoWithVerticalBar(getString(R.string.volume) + "\n" + (int) (currentVolume / (maxVolume*1.0d) * 100) + '%', 1000, currentVolume, maxVolume);
+                            showInfoWithVerticalBar(getString(R.string.volume) + "\n" + (int) (currentVolume / (maxVolume * 1.0d) * 100) + '%', 1000, currentVolume, maxVolume);
                         }
                         return true;
                     case KeyEvent.KEYCODE_HOME:
@@ -539,11 +612,32 @@ public class VideoPlayActivity extends Activity implements
                 mHandler.removeCallbacksAndMessages(null);
                 mHandler.sendMessageDelayed(mHandler.obtainMessage(HIDE), timeout);
                 break;
+
+            case R.id.subtitle_color_sel:
+                if (dialog != null && dialog.isShowing())
+                    dismissDialog();
+                else {
+                    ind = null;
+                    name = null;
+                    if (subtitleColorList != null) {
+                        ind = new int[subtitleColorList.size()];
+                        name = new String[subtitleColorList.size()];
+                        for (int i = 0; i < subtitleColorList.size(); i++) {
+                            ind[i] = subtitleColorList.get(i).getIndex();
+                            name[i] = subtitleColorList.get(i).getSubtitleColor();
+                        }
+                        showDialog("字幕颜色选择", name, subtitleColorSelIndex, "subtitleColorType");
+                    }
+                }
+                mHandler.removeCallbacksAndMessages(null);
+                mHandler.sendMessageDelayed(mHandler.obtainMessage(HIDE), timeout);
+                break;
         }
     }
 
     private int audioSelIndex = -1;
     private int subtitleSelIndex = -1;
+    private int subtitleColorSelIndex = -1;
 
     private void showDialog(String title, String[] arrayStr, final int currentPos, final String type) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -552,17 +646,27 @@ public class VideoPlayActivity extends Activity implements
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 try {
-                    if (i == 0) {
+                    if ("subtitleColorType".equals(type)) {
+                        subtitleColorSelIndex = i;
+                    } else if (i == 0) {
                         player.desselectTrack(ind[currentPos]);
                     } else {
                         player.setSelectTrack(ind[i]);
                     }
                     if ("subtitleType".equals(type)) {
                         subtitleSelIndex = i;
+                        if (!TextUtils.isEmpty(subtitleSrtOrAss)) {
+                            if (subtitleList.get(i).getType() == 3) {
+                                setSubtitleColorFocus(true);
+                            } else {
+                                setSubtitleColorFocus(false);
+                            }
+                        }
                     }
                     if ("audioType".equals(type)) {
                         audioSelIndex = i;
                     }
+                    setTextColor();
                     dismissDialog();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -663,6 +767,8 @@ public class VideoPlayActivity extends Activity implements
             player.onDestroy();
             player = null;
         }
+//        unBindEncryService();
+//        stopEncryService();
         finish();
         overridePendingTransition(0, 0);
     }
@@ -732,4 +838,54 @@ public class VideoPlayActivity extends Activity implements
         }
         mVerticalBar.setVisibility(View.VISIBLE);
     }
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        // 当与service的连接建立后被调用
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+        }
+
+        // 当与service的连接意外断开时被调用
+        public void onServiceDisconnected(ComponentName className) {
+        }
+    };
+
+    public void setTextColor() {
+        if (!TextUtils.isEmpty(subtitleSrtOrAss) && subtitleList.get(subtitleSelIndex).getType() == 3) {
+            if (subtitleColorSelIndex != -1) {
+                switch (subtitleColorList.get(subtitleColorSelIndex).getSubtitleColor()) {
+                    case "白":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.white));
+                        break;
+                    case "赤":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.red));
+                        break;
+                    case "橙":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.orange));
+                        break;
+                    case "黄":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.yellow));
+                        break;
+                    case "绿":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.green));
+                        break;
+                    case "青":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.cyan));
+                        break;
+                    case "蓝":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.blue));
+                        break;
+                    case "紫":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.purple));
+                        break;
+                    case "黑":
+                        subtitle_text.setTextColor(getResources().getColor(R.color.black));
+                        break;
+                }
+            }
+        } else {
+            subtitle_text.setTextColor(getResources().getColor(R.color.white));
+        }
+    }
+
 }

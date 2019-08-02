@@ -81,6 +81,15 @@
                 android:background="@drawable/player_line" />
 
             <ImageView
+                android:id="@+id/subtitle_color_sel"
+                android:layout_width="96px"
+                android:layout_height="80px"
+                android:layout_toLeftOf="@+id/line_two"
+                android:focusable="true"
+                android:scaleType="center"
+                android:src="@drawable/audio_control_bg" />
+
+            <ImageView
                 android:id="@+id/line_two"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

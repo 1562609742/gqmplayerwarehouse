@@ -5,6 +5,26 @@ public class TrackBean {
     private String audioName;
     private int index;
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    private int type;
+
+    public String getSubtitleColor() {
+        return subtitleColor;
+    }
+
+    public void setSubtitleColor(String subtitleColor) {
+        this.subtitleColor = subtitleColor;
+    }
+
+    private String subtitleColor;
+
     public String getAudioName() {
         return audioName;
     }
